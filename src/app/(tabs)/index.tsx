@@ -1,17 +1,21 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { CameraView, useCameraPermissions, FlashMode } from 'expo-camera';
+import { useRouter } from 'expo-router';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { CameraOverlay } from '../../components/CameraOverlay';
+import { ScanPreviewModal } from '../../components/ScanPreviewModal';
 import { useTheme } from '../../theme/ThemeProvider';
-import { spacing } from '../../theme/spacing';
+import { spacing, layout } from '../../theme/spacing';
 
 export default function ScannerScreen() {
   const { themeColors } = useTheme();
+  const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [flash, setFlash] = useState<FlashMode>('off');
-  const [previewUri, setPreviewUri] = useState<string | null>(null);
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
   
   const cameraRef = useRef<CameraView>(null);
 
@@ -22,11 +26,11 @@ export default function ScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <Typography variant="h2" style={{ marginBottom: spacing.md }}>[ PERMISSION_REQ ]</Typography>
+        <Typography variant="h2" style={{ marginBottom: spacing.md }}>Permission Required</Typography>
         <Typography variant="body" color={themeColors.textSecondary} style={{ marginBottom: spacing.xl, textAlign: 'center' }}>
           Camera access is required for document scanning operations.
         </Typography>
-        <Button title="GRANT ACCESS" onPress={requestPermission} />
+        <Button title="Grant Access" onPress={requestPermission} />
       </View>
     );
   }
@@ -39,23 +43,12 @@ export default function ScannerScreen() {
           base64: false,
         });
         if (photo) {
-          setPreviewUri(photo.uri);
+          setCapturedImages(prev => [...prev, photo.uri]);
         }
       } catch (error) {
         console.error('Failed to take picture:', error);
       }
     }
-  };
-
-  const retakePicture = () => {
-    setPreviewUri(null);
-  };
-
-  const acceptPicture = () => {
-    // Save/Process logic will go here.
-    // For now, just log and reset.
-    console.log('Accepted photo:', previewUri);
-    setPreviewUri(null);
   };
 
   const toggleFlash = () => {
@@ -65,18 +58,6 @@ export default function ScannerScreen() {
       return 'off';
     });
   };
-
-  if (previewUri) {
-    return (
-      <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <Image source={{ uri: previewUri }} style={StyleSheet.absoluteFillObject} resizeMode="contain" />
-        <View style={styles.previewControls}>
-          <Button title="[ RETAKE ]" variant="secondary" onPress={retakePicture} />
-          <Button title="[ ACCEPT ]" variant="primary" onPress={acceptPicture} />
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -92,25 +73,61 @@ export default function ScannerScreen() {
         {/* Top Controls */}
         <View style={styles.topControls}>
           <TouchableOpacity 
+            onPress={() => router.push('/home')}
+            style={[styles.homeButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+          >
+            <Typography variant="caption" color={themeColors.text}>
+              [ HOME ]
+            </Typography>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
             onPress={toggleFlash}
             style={[styles.flashButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
           >
             <Typography variant="caption" color={themeColors.text}>
-              FLASH: {flash.toUpperCase()}
+              Flash: {flash.toUpperCase()}
             </Typography>
           </TouchableOpacity>
         </View>
 
         {/* Bottom Controls */}
         <View style={styles.bottomControls}>
+          <View style={styles.sideButtonContainer}>
+             {/* Left side empty for balance */}
+          </View>
+          
           <TouchableOpacity 
             style={[styles.captureButtonOuter, { borderColor: themeColors.primary }]}
             onPress={takePicture}
           >
             <View style={[styles.captureButtonInner, { backgroundColor: themeColors.primary }]} />
           </TouchableOpacity>
+          
+          <View style={styles.sideButtonContainer}>
+            {capturedImages.length > 0 && (
+              <TouchableOpacity 
+                style={[styles.queueBadge, { backgroundColor: themeColors.surface }]}
+                onPress={() => setShowPreview(true)}
+              >
+                <Typography variant="caption" color={themeColors.text}>
+                  {capturedImages.length} 
+                </Typography>
+                <Typography variant="caption" color={themeColors.textSecondary}>
+                  {capturedImages.length === 1 ? 'Page' : 'Pages'}
+                </Typography>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </CameraView>
+
+      <ScanPreviewModal 
+        visible={showPreview} 
+        images={capturedImages}
+        onClose={() => setShowPreview(false)}
+        onClear={() => setCapturedImages([])}
+      />
     </View>
   );
 }
@@ -124,41 +141,58 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing.xxl,
     width: '100%',
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.xl,
+  },
+  homeButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderWidth: 1,
+    borderRadius: layout.pillRadius,
   },
   flashButton: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: layout.pillRadius,
   },
   bottomControls: {
     position: 'absolute',
     bottom: spacing.xxl,
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: spacing.xl,
   },
   captureButtonOuter: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    borderWidth: 2,
+    borderWidth: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   captureButtonInner: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
   },
-  previewControls: {
-    position: 'absolute',
-    bottom: spacing.xxl,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: spacing.xl,
+  sideButtonContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  queueBadge: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: layout.pillRadius,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
