@@ -61,66 +61,69 @@ export default function ScannerScreen() {
 
   return (
     <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFillObject}
-        facing="back"
-        flash={flash}
-        animateShutter={false}
-      >
-        <CameraOverlay />
+      {/* Top Controls */}
+      <View style={styles.topControls}>
+        <TouchableOpacity 
+          onPress={() => router.push('/home')}
+          style={[styles.homeButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+        >
+          <Typography variant="caption" color={themeColors.text}>
+            [ HOME ]
+          </Typography>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={toggleFlash}
+          style={[styles.flashButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
+        >
+          <Typography variant="caption" color={themeColors.text}>
+            Flash: {flash.toUpperCase()}
+          </Typography>
+        </TouchableOpacity>
+      </View>
+
+      {/* Camera Viewfinder */}
+      <View style={styles.cameraWrapper}>
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing="back"
+          flash={flash}
+          animateShutter={false}
+        >
+          <CameraOverlay />
+        </CameraView>
+      </View>
+
+      {/* Bottom Controls */}
+      <View style={styles.bottomControls}>
+        <View style={styles.sideButtonContainer}>
+           {/* Left side empty for balance */}
+        </View>
         
-        {/* Top Controls */}
-        <View style={styles.topControls}>
-          <TouchableOpacity 
-            onPress={() => router.push('/home')}
-            style={[styles.homeButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
-          >
-            <Typography variant="caption" color={themeColors.text}>
-              [ HOME ]
-            </Typography>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            onPress={toggleFlash}
-            style={[styles.flashButton, { backgroundColor: themeColors.surface, borderColor: themeColors.border }]}
-          >
-            <Typography variant="caption" color={themeColors.text}>
-              Flash: {flash.toUpperCase()}
-            </Typography>
-          </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.captureButtonOuter, { borderColor: themeColors.primary }]}
+          onPress={takePicture}
+        >
+          <View style={[styles.captureButtonInner, { backgroundColor: themeColors.primary }]} />
+        </TouchableOpacity>
+        
+        <View style={styles.sideButtonContainer}>
+          {capturedImages.length > 0 && (
+            <TouchableOpacity 
+              style={[styles.queueBadge, { backgroundColor: themeColors.surface }]}
+              onPress={() => setShowPreview(true)}
+            >
+              <Typography variant="caption" color={themeColors.text}>
+                {capturedImages.length} 
+              </Typography>
+              <Typography variant="caption" color={themeColors.textSecondary}>
+                {capturedImages.length === 1 ? 'Page' : 'Pages'}
+              </Typography>
+            </TouchableOpacity>
+          )}
         </View>
-
-        {/* Bottom Controls */}
-        <View style={styles.bottomControls}>
-          <View style={styles.sideButtonContainer}>
-             {/* Left side empty for balance */}
-          </View>
-          
-          <TouchableOpacity 
-            style={[styles.captureButtonOuter, { borderColor: themeColors.primary }]}
-            onPress={takePicture}
-          >
-            <View style={[styles.captureButtonInner, { backgroundColor: themeColors.primary }]} />
-          </TouchableOpacity>
-          
-          <View style={styles.sideButtonContainer}>
-            {capturedImages.length > 0 && (
-              <TouchableOpacity 
-                style={[styles.queueBadge, { backgroundColor: themeColors.surface }]}
-                onPress={() => setShowPreview(true)}
-              >
-                <Typography variant="caption" color={themeColors.text}>
-                  {capturedImages.length} 
-                </Typography>
-                <Typography variant="caption" color={themeColors.textSecondary}>
-                  {capturedImages.length === 1 ? 'Page' : 'Pages'}
-                </Typography>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      </CameraView>
+      </View>
 
       <ScanPreviewModal 
         visible={showPreview} 
@@ -136,14 +139,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+    paddingTop: 60, // Top safe area allowance
+    paddingBottom: 40, // Bottom safe area allowance
   },
   topControls: {
-    position: 'absolute',
-    top: spacing.xxl,
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  cameraWrapper: {
+    flex: 1,
+    marginHorizontal: spacing.md,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  camera: {
+    flex: 1,
   },
   homeButton: {
     paddingHorizontal: spacing.md,
@@ -158,13 +170,12 @@ const styles = StyleSheet.create({
     borderRadius: layout.pillRadius,
   },
   bottomControls: {
-    position: 'absolute',
-    bottom: spacing.xxl,
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: spacing.xl,
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
   },
   captureButtonOuter: {
     width: 80,
