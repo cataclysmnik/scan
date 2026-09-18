@@ -22,21 +22,22 @@ export const Button: React.FC<ButtonProps> = ({
   const { themeColors } = useTheme();
 
   let backgroundColor = themeColors.primary;
-  let textColor = themeColors.background;
-  let borderColor = themeColors.primary;
+  // @ts-ignore - Adding custom property not in default type but available in our colors
+  let textColor = themeColors.onPrimaryContainer || themeColors.background;
+  let borderColor = 'transparent';
 
   if (variant === 'secondary') {
-    backgroundColor = themeColors.surface;
-    textColor = themeColors.text;
-    borderColor = themeColors.surface;
+    // @ts-ignore
+    backgroundColor = themeColors.primaryContainer || themeColors.surface;
+    // @ts-ignore
+    textColor = themeColors.onPrimaryContainer || themeColors.text;
   } else if (variant === 'outline') {
     backgroundColor = 'transparent';
-    textColor = themeColors.text;
+    textColor = themeColors.primary;
     borderColor = themeColors.border;
   } else if (variant === 'ghost') {
     backgroundColor = 'transparent';
-    textColor = themeColors.text;
-    borderColor = 'transparent';
+    textColor = themeColors.primary;
   }
 
   return (
@@ -49,7 +50,8 @@ export const Button: React.FC<ButtonProps> = ({
         {
           backgroundColor: disabled ? themeColors.border : backgroundColor,
           borderColor: disabled ? themeColors.border : borderColor,
-          borderWidth: layout.borderWidth,
+          borderWidth: variant === 'outline' ? 1 : layout.borderWidth,
+          borderRadius: layout.pillRadius,
         },
       ]}
     >
@@ -68,7 +70,6 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
-    borderRadius: layout.borderRadius,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',

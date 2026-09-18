@@ -8,7 +8,7 @@ export const spacing = {
 };
 
 export const layout = {
-  borderRadius: 0, // Nothing uses very sharp, technical edges or perfect pills. We'll go sharp.
+  borderRadius: 16,
   pillRadius: 9999,
-  borderWidth: 1, // Exposed borders are common in the aesthetic
+  borderWidth: 0,
 };

@@ -16,8 +16,7 @@ export const Card: React.FC<CardProps> = ({ children, style, ...props }) => {
         styles.card,
         {
           backgroundColor: themeColors.surface,
-          borderColor: themeColors.border,
-          borderWidth: layout.borderWidth,
+          borderRadius: layout.borderRadius,
         },
         style,
       ]}
@@ -31,6 +30,5 @@ export const Card: React.FC<CardProps> = ({ children, style, ...props }) => {
 const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
-    borderRadius: layout.borderRadius,
   },
 });

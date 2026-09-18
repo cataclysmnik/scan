@@ -1,38 +1,32 @@
 export const typography = {
-  // Using system fonts but aiming for a bold, uppercase, structural feel
   h1: {
-    fontSize: 32,
-    fontWeight: '900',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 2,
+    fontSize: 36,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
   h2: {
-    fontSize: 24,
-    fontWeight: '800',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1.5,
+    fontSize: 28,
+    fontWeight: '600',
+    letterSpacing: -0.25,
   },
   h3: {
-    fontSize: 20,
-    fontWeight: '700',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
+    fontSize: 22,
+    fontWeight: '500',
+    letterSpacing: 0,
   },
   body: {
     fontSize: 16,
     fontWeight: '400',
-    letterSpacing: 0.5,
+    letterSpacing: 0.15,
   },
   caption: {
     fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
+    fontWeight: '400',
+    letterSpacing: 0.4,
   },
   button: {
     fontSize: 14,
-    fontWeight: '800',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 2,
+    fontWeight: '500',
+    letterSpacing: 0.1,
   },
 };

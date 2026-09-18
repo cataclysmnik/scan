@@ -21,13 +21,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Scan',
         }}
       />
       <Tabs.Screen
-        name="scanner"
+        name="home"
         options={{
-          title: 'Scan',
+          title: 'Home',
         }}
       />
       <Tabs.Screen
